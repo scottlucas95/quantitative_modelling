@@ -11,36 +11,46 @@ from scipy import stats, optimize
 import yfinance as yf
 from pandas_datareader import data as pdr
 
+
 def connect_to_stock_data(start_date, end_date, stocks):
     """Returns adjusted closing price of stocks between two dates."""
 
     yf.pdr_override()
     data = pdr.get_data_yahoo(stocks, start=start_date, end=end_date)['Adj Close']
+    data.dropna(inplace=True)
     return data
-
-# def show_data(data):
-#     data.plot(figsize = (10,5))
-#     plt.show()
 
 def daily_log_returns(data):
     """Calculates the daily return of a stock and normalises using log."""
 
     daily_returns = np.log(data/data.shift(1))
+    daily_returns.dropna(inplace = True)
     return daily_returns
 
-def check_log_returns_normally_distributed(data):
-    #TODO: doesn't work properly; everything passes the test
+def check_normally_distributed(data):
+    #No matter what gets passed, we get p_value < O(-10) using statistical tests.
+    #plotting the histogram shows normally distributed.
 
-    # main assumption of MPT is that the returns are normally distributed
-    #p value is the probability of the null hypothesis being rejected
     for col in data.columns:
         daily_returns = daily_log_returns(data[col])
-        # daily_returns = data[col].hist(bins=100)
-        # plt.show()
-        k2, p = stats.normaltest(daily_returns.dropna())
-        alpha = 1e-3        #0.1% significance level
-        if p > alpha:  # alternative hypothesis: data doesn't comes from a normal distribution
-            raise ValueError('{} returns are not normally distributed'.format(daily_returns.columns))
+        #uniform= pd.Series(stats.uniform.rvs(size = 1000))
+        #normal = pd.Series(stats.norm.rvs(size = 1000))
+
+        #plot using .hist.
+        #daily_returns.hist(bins=100)
+        #uniform.hist(bins=100)
+        #normal.hist(bins=100)
+
+        #shapiro test of normality.  Most powerful normality test (apparently)
+        #Can use stats.anderson() as an alternative test for normality.
+
+        shapiro_daily_returns = stats.shapiro(daily_returns)
+        #shapiro_uniform = stats.shapiro(uniform)
+        #shapiro_normal = stats.shapiro(normal)
+        print()
+
+        # if p > alpha:  # alternative hypothesis: data doesn't comes from a normal distribution
+        #     raise ValueError('{} returns are not normally distributed'.format(daily_returns.columns))
 
 def show_statistics(returns):
     """
@@ -104,13 +114,14 @@ def min_func_sharpe(weights, returns):
     portfolio_return, portfolio_variance, portfolio_sharpe_ratio = calculate_portfolio_stats(returns, weights)
     return -portfolio_sharpe_ratio
 
-def optimum_portfolio_weights(stocks,  returns):
+def optimum_portfolio_weights(stocks, returns):
     """
-    Create weights, apply constraints and put into objective function to be minimised
-    :param stocks: Stocks in portfolio
-    :param returns: Daily returns - the argument to the minimum function
-    :return: Portfolio with optimum sharpe ratio
+    Create weights, apply constraints and minimise objective function.
+    :param stocks: Stocks in portfolio.
+    :param returns: Daily returns - the argument to the minimum function.
+    :return: Portfolio with optimum Sharpe ratio.
     """
+
     weights = initialise_weights(stocks)
     constraints = ({'type' : 'eq', 'fun': lambda x: np.sum(x) - 1})     # make sure sum of weights is 1
     bounds = tuple((0,1) for c in range(len(stocks)))       #the weight of a given stock can be at most 1
@@ -138,14 +149,14 @@ def show_optimal_porfolio(optimum, returns, portfolio_returns, portfolio_varianc
 
 def main():
     # TODO: need to write a bit of code that, given all generated portfolios, gets the max return for a given risk and vice versa
-    stocks = ['FCX', 'ALB', 'SIVB', 'ALGN', 'MU']
+    stocks = ['KO', 'ALB', 'SIVB', 'ALGN', 'MU']
     #stocks = ['APPL', 'KO', 'CE', 'A', 'BK']
     start = pd.to_datetime('2013-12-12')
     end = pd.to_datetime('2020-08-21')
     MC_iterations = 1000
 
     data = connect_to_stock_data(start, end, stocks)
-    check_log_returns_normally_distributed(data)
+    check_normally_distributed(data)
     daily_returns = daily_log_returns(data)
     n_portfolio_returns, n_portfolio_variances = generate_portfolios(stocks, daily_returns, MC_iterations)
     n_portfolio_sharpe_ratio = n_portfolio_returns / n_portfolio_variances
