@@ -1,0 +1,10 @@
+Using IEX Cloud API
+-Sandbox mode
+--gives randomised financial data
+--allows you to check whether api calls are working before you use   the real API and incur data usage charges
+-secrets.py contains tokens and passwords. Should be included in gitignore so this file does not get pushed to git for people to see.
+-need an endpoint that has market cap and price
+-endpoint is just a url extension
+--endpoints are the final information you need
+--i.e. google maps coord gives location only, but another endpoint would give population 
+-can look up parameters in the json by searching on iex webside

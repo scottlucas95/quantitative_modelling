@@ -1,0 +1,21 @@
+TODO LIST
+
+FOOTBALL MODEL
+-Add features and perform PCA
+-read the new bookmark from Medium
+-Try all i can with the data and methods by wednesday.
+
+FOOTBALL MODEL FIXES
+-incorporate num_of_players in initial scrape and get into production.
+-two occurances of a team in a match week and a better way of getting new games
+-score/result needs to be deleted from num_of_players and full_match_stats
+-need to include file creation for next predictions
+-code to make sure all parsed data is correct, get and delete problematic games and save.
+
+QUANT
+-Rewrite my notes
+-cash secured, covered options, margin requirements
+-O/A/I TM in relation to trading strats
+-implementing and getting parameters for blackscholes
+-the greeks in respects to trading strats (TRY TO DO MYSELF FIRST)
+
