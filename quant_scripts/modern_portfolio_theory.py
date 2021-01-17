@@ -123,7 +123,7 @@ def optimum_portfolio_weights(stocks, returns):
     """
 
     weights = initialise_weights(stocks)
-    constraints = ({'type' : 'eq', 'fun': lambda x: np.sum(x) - 1})     # make sure sum of weights is 1
+    constraints = ({'type' : 'eq', 'fun': lambda x: np.sum(x) - 1})     # equality constraint and sum of weights is 1
     bounds = tuple((0,1) for c in range(len(stocks)))       #the weight of a given stock can be at most 1
     optimum = optimize.minimize(fun = min_func_sharpe, x0 = weights, args = returns, method = 'SLSQP', bounds = bounds, constraints = constraints)
     return optimum
